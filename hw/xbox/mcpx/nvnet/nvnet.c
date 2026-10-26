@@ -820,6 +820,14 @@ static void nvnet_mmio_write(void *opaque, hwaddr addr, uint64_t val,
     NvNetState *s = NVNET(opaque);
 
     trace_nvnet_reg_write(addr, get_reg_name(addr), size, val);
+    /* Cromwell programs the MAC address one byte at a time. These registers
+     * are storage only; other registers have separate access side effects. */
+    if ((addr & ~3) == NVNET_MAC_ADDR_A ||
+        (addr & ~3) == NVNET_MAC_ADDR_B) {
+        set_reg_ext(s, addr, val, size);
+        return;
+    }
+
     assert((addr & 3) == 0 && "Unaligned MMIO write");
 
     switch (addr) {
