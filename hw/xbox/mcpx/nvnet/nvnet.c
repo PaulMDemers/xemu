@@ -540,10 +540,8 @@ static void dma_packet_from_guest(NvNetState *s)
 
         advance_next_tx_ring_desc_addr(s);
 
-        if (is_last_packet) {
-            // FIXME
-            break;
-        }
+        /* Drain the queued batch, bounded by the ring size and the first
+         * descriptor that is no longer owned by the device. */
     }
 
     set_dma_idle(s, true);
