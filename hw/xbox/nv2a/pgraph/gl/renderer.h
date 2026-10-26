@@ -60,6 +60,7 @@ typedef struct SurfaceBinding {
     int draw_time;
     bool draw_dirty;
     bool download_pending;
+    bool cpu_write_evict_pending;
     bool upload_pending;
 
     GLuint gl_buffer;
