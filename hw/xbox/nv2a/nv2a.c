@@ -309,6 +309,9 @@ static void nv2a_reset(NV2AState *d)
     memset(d->pvideo.regs, 0, sizeof(d->pvideo.regs));
 
     d->pcrtc.start = 0;
+    d->pramdac.fp_vtotal = 0;
+    d->pramdac.fp_vsync_start = 0;
+    d->pramdac.fp_htotal = 0;
     d->pramdac.core_clock_coeff = 0x00011C01; /* 189MHz...? */
     d->pramdac.core_clock_freq = 233333324;
     d->pramdac.memory_clock_coeff = 0;
@@ -434,6 +437,10 @@ static int nv2a_pre_load(void *opaque)
 {
     NV2AState *d = opaque;
     nv2a_lock_fifo(d);
+    /* Older upstream snapshots did not retain these registers. */
+    d->pramdac.fp_vtotal = 0;
+    d->pramdac.fp_vsync_start = 0;
+    d->pramdac.fp_htotal = 0;
     return 0;
 }
 
@@ -464,7 +471,7 @@ const VMStateDescription vmstate_nv2a_pgraph_vertex_attributes = {
 
 static const VMStateDescription vmstate_nv2a = {
     .name = "nv2a",
-    .version_id = 5,
+    .version_id = 6,
     .minimum_version_id = 1,
     .post_save = nv2a_post_save,
     .post_load = nv2a_post_load,
@@ -589,6 +596,9 @@ static const VMStateDescription vmstate_nv2a = {
         VMSTATE_TIMER_V(ptimer.timer, NV2AState, 4),
         VMSTATE_BUFFER_UNSAFE(pgraph.vsh_carry_fog, NV2AState, 5,
                               sizeof(((PGRAPHState *)0)->vsh_carry_fog)),
+        VMSTATE_UINT32_V(pramdac.fp_vtotal, NV2AState, 6),
+        VMSTATE_UINT32_V(pramdac.fp_vsync_start, NV2AState, 6),
+        VMSTATE_UINT32_V(pramdac.fp_htotal, NV2AState, 6),
         VMSTATE_END_OF_LIST()
     },
 };
